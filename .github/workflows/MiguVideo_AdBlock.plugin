@@ -1,5 +1,5 @@
-#!name=咪咕视频去广告修复版
-#!desc=保守版，避免页面打不开，保留启动广告配置脚本
+#!name=咪咕视频去广告
+#!desc=咪咕视频广告拦截，增强启动广告/开屏广告过滤
 #!author=cngzsunny / ChatGPT
 #!date=2026-04-26
 
@@ -18,16 +18,44 @@ DOMAIN,ggic03.miguvideo.com,REJECT
 DOMAIN,ggmk.miguvideo.com,REJECT
 DOMAIN,ggadoffline.miguvideo.com,REJECT
 
+DOMAIN-KEYWORD,iflyad,REJECT
+DOMAIN-KEYWORD,ggx,REJECT
+DOMAIN-KEYWORD,ggic,REJECT
+
 [Rewrite]
-^https?:\/\/ggc\.miguvideo\.com\/v\d\/iflyad\/deliverysystem\/direct\/.* reject-dict
-^https?:\/\/ggx\d*\.miguvideo\.com\/request\/sdk\d+.* reject-dict
+# 开屏/启动广告
+^https?:\/\/.*\.miguvideo\.com\/.*(splash|startup|launch|boot|opening|start|advert|ad).* reject-dict
+^https?:\/\/.*\.cmvideo\.cn\/.*(splash|startup|launch|boot|opening|start|advert|ad).* reject-dict
+
+# 广告下发
+^https?:\/\/ggc\.miguvideo\.com\/v\d\/iflyad\/deliverysystem\/direct\/ reject-dict
+^https?:\/\/ggc\.cmvideo\.cn\/v\d\/iflyad\/deliverysystem\/direct\/ reject-dict
+^https?:\/\/gg\w+\.cmvideo\.cn\/v\d\/iflyad\/ reject-dict
+
+# SDK 广告请求
+^https?:\/\/ggx.*\.miguvideo\.com\/request\/sdk.* reject-dict
+^https?:\/\/ggx\.cmvideo\.cn\/request\/sdk.* reject-dict
+^https?:\/\/ggx\.cmvideo\.cn\/request\/.* reject-dict
+
+# 广告图片/广告资源
 ^https?:\/\/ggic\d*\.miguvideo\.com\/ad\/.* reject-img
+^https?:\/\/ggic\d*\.cmvideo\.cn\/ad\/.* reject-img
+^https?:\/\/.+?\/cdn-adn\/.* reject-img
+
+# 原规则增强
 ^https?:\/\/public-deliver\d*\.miguvideo\.com\/deliver\/site\/batchMatch\/mergeSpot\/miguvideo\/.* reject-dict
 ^https?:\/\/recommend-dy\.miguvideo\.com\/recommend-dynamic\/dataSource\/v1\/recommend\/merge.* reject-dict
+^https?:\/\/app-sc\.miguvideo\.com\/app-management\/v1\/staticcache\/settings\/miguvideo\/SHARE_PIC.* reject-dict
+^https?:\/\/common-sc\.miguvideo\.com\/videoActivity\/activityList\/.* reject-dict
 ^https?:\/\/common-sc\.miguvideo\.com\/task\/v7\/task-list\/cmvideo\/visitor.* reject-dict
 
+# 启动配置/广告位配置
+^https?:\/\/display.*-sc\.miguvideo\.com\/display\/v\d\/static\/.* reject-dict
+^https?:\/\/app-sc\.miguvideo\.com\/app-management\/v\d\/staticcache\/settings\/miguvideo\/.* reject-dict
+^https?:\/\/common-sc\.miguvideo\.com\/.*(advert|ad|splash|startup|launch|opening).* reject-dict
+
 [Script]
-http-response ^https?:\/\/app-sc\.miguvideo\.com\/common\/v1\/settings-list\/INITPARAM$ script-path=https://raw.githubusercontent.com/871226xue/ly/refs/heads/main/.github/workflows/miguvideo_startup.js, requires-body=true, timeout=60, tag=咪咕启动配置净化
+http-response ^https?:\/\/display-sc\.miguvideo\.com\/display\/v3\/static\/PERSONAL_CENTER$ script-path=https://raw.githubusercontent.com/cngzsunny/vpn_tool/refs/heads/main/Loon/Script/miguvideo_ads.js, requires-body=true, timeout=60, tag=咪咕视频个人中心去广告
 
 [MITM]
-hostname = %APPEND% app-sc.miguvideo.com, ggc.miguvideo.com, ggx*.miguvideo.com, ggic*.miguvideo.com, public-deliver*.miguvideo.com, recommend-dy.miguvideo.com, common-sc.miguvideo.com
+hostname = %APPEND% *.miguvideo.com, *.cmvideo.cn
