@@ -1,0 +1,28 @@
+name: 12306去广告
+description: 完整移除12306启动页广告和应用内广告
+author: ddgksf2013 & 可莉 & RuCu6（整理：ChatGPT）
+icon: https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/12306.png
+
+rules:
+  - domain:
+      match: ad.12306.cn
+      policy: DIRECT
+
+scriptings:
+  - http_request:
+      name: 移除12306启动广告
+      match: "^https://ad\\.12306\\.cn/ad/ser/getAdList"
+      script_url: "https://raw.githubusercontent.com/ddgksf2013/Scripts/master/12306.js"
+      body_required: true
+      timeout: 60
+
+  - http_request:
+      name: 移除12306应用内广告
+      match: "^https://mobile\\.12306\\.cn/otsmobile/app/mgs/mgw\\.htm$"
+      script_url: "https://kelee.one/Resource/JavaScript/12306/12306_remove_ads.js"
+      timeout: 60
+
+mitm:
+  hostnames:
+    - ad.12306.cn
+    - mobile.12306.cn
