@@ -1,0 +1,35 @@
+#!name=咪咕视频去广告增强
+#!desc=增强开屏广告/贴片广告/首页广告过滤
+#!author=cngzsunny / ChatGPT
+#!date=2026-04-26
+
+[Rule]
+DOMAIN-SUFFIX,ad.cmvideo.cn,REJECT
+DOMAIN-SUFFIX,adxserver.ad.cmvideo.cn,REJECT
+DOMAIN-SUFFIX,dspserver.ad.cmvideo.cn,REJECT
+DOMAIN-SUFFIX,openstorage.ad.cmvideo.cn,REJECT
+DOMAIN-SUFFIX,migu.kssws.ks-cdn.com,REJECT
+DOMAIN,ggc.cmvideo.cn,REJECT
+DOMAIN,ggv.cmvideo.cn,REJECT
+DOMAIN,ggx.cmvideo.cn,REJECT
+DOMAIN,ggx03.miguvideo.com,REJECT
+DOMAIN,ggic03.miguvideo.com,REJECT
+DOMAIN,ggmk.miguvideo.com,REJECT
+DOMAIN,ggadoffline.miguvideo.com,REJECT
+DOMAIN,ggx06.miguvideo.com,REJECT
+
+[Rewrite]
+^https?:\/\/ggx\d*\.miguvideo\.com\/request\/sdk\d+.* reject-dict
+^https?:\/\/ggc\.miguvideo\.com\/v\d\/iflyad\/deliverysystem\/direct\/.* reject-dict
+^https?:\/\/ggic\d*\.miguvideo\.com\/ad\/.* reject-img
+^https?:\/\/display-sc\.miguvideo\.com\/display\/v3\/static\/PERSONAL_CENTER$ reject-dict
+^https?:\/\/public-deliver\d*\.miguvideo\.com\/deliver\/site\/batchMatch\/mergeSpot\/miguvideo\/.* reject-dict
+^https?:\/\/recommend-dy\.miguvideo\.com\/recommend-dynamic\/dataSource\/v1\/recommend\/merge.* reject-dict
+^https?:\/\/common-sc\.miguvideo\.com\/task\/v7\/task-list\/cmvideo\/visitor.* reject-dict
+^https?:\/\/jadeiteapp\.migu\.cn\/search\/(hotword|spotlight|getDefaultRecWord).* reject-dict
+
+[Script]
+http-response ^https?:\/\/app-sc\.miguvideo\.com\/common\/v1\/settings-list\/INITPARAM$ script-path=https://raw.githubusercontent.com/871226xue/ly/refs/heads/main/.github/workflows/miguvideo_startup.js, requires-body=true, timeout=60, tag=咪咕启动广告配置净化
+
+[MITM]
+hostname = %APPEND% app-sc.miguvideo.com, ggx*.miguvideo.com, ggc.miguvideo.com, ggic*.miguvideo.com, display-sc.miguvideo.com, public-deliver*.miguvideo.com, recommend-dy.miguvideo.com, common-sc.miguvideo.com, jadeiteapp.migu.cn
