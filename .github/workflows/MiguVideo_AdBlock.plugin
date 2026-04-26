@@ -1,61 +1,22 @@
-#!name=咪咕视频去广告
-#!desc=咪咕视频广告拦截，增强启动广告/开屏广告过滤
-#!author=cngzsunny / ChatGPT
-#!date=2026-04-26
+// ==UserScript==
+// @ScriptName        咪咕视频净化[墨鱼版]
+// @Author            @ddgksf2013
+// @Function          如果有需要的去除广告的APP，可自行在共享表格中添加需求
+// @AddRequest        https://bit.ly/addRequestforAdBlock
+// @WechatID          墨鱼手记
+// @TgChannel         https://t.me/ddgksf2021
+// @Contribute        https://t.me/ddgksf2013_bot
+// @UpdateTime        2026-02-14
+// @Suitable          自行观看“# > ”注释内容
+// @Attention         如需引用请注明出处，谢谢合作！
+// @Version           V1.0.3
+// @ScriptURL         https://ddgksf2013.top/rewrite/MiGuVideoAds.conf
+// ==/UserScript==
 
-[Rule]
-DOMAIN-SUFFIX,ad.cmvideo.cn,REJECT
-DOMAIN-SUFFIX,adxserver.ad.cmvideo.cn,REJECT
-DOMAIN-SUFFIX,dspserver.ad.cmvideo.cn,REJECT
-DOMAIN-SUFFIX,openstorage.ad.cmvideo.cn,REJECT
-DOMAIN-SUFFIX,migu.kssws.ks-cdn.com,REJECT
+hostname= *.miguvideo.com, *.migu.cn
 
-DOMAIN,ggc.cmvideo.cn,REJECT
-DOMAIN,ggv.cmvideo.cn,REJECT
-DOMAIN,ggx.cmvideo.cn,REJECT
-DOMAIN,ggx03.miguvideo.com,REJECT
-DOMAIN,ggic03.miguvideo.com,REJECT
-DOMAIN,ggmk.miguvideo.com,REJECT
-DOMAIN,ggadoffline.miguvideo.com,REJECT
-
-DOMAIN-KEYWORD,iflyad,REJECT
-DOMAIN-KEYWORD,ggx,REJECT
-DOMAIN-KEYWORD,ggic,REJECT
-
-[Rewrite]
-# 开屏/启动广告
-^https?:\/\/.*\.miguvideo\.com\/.*(splash|startup|launch|boot|opening|start|advert|ad).* reject-dict
-^https?:\/\/.*\.cmvideo\.cn\/.*(splash|startup|launch|boot|opening|start|advert|ad).* reject-dict
-
-# 广告下发
-^https?:\/\/ggc\.miguvideo\.com\/v\d\/iflyad\/deliverysystem\/direct\/ reject-dict
-^https?:\/\/ggc\.cmvideo\.cn\/v\d\/iflyad\/deliverysystem\/direct\/ reject-dict
-^https?:\/\/gg\w+\.cmvideo\.cn\/v\d\/iflyad\/ reject-dict
-
-# SDK 广告请求
-^https?:\/\/ggx.*\.miguvideo\.com\/request\/sdk.* reject-dict
-^https?:\/\/ggx\.cmvideo\.cn\/request\/sdk.* reject-dict
-^https?:\/\/ggx\.cmvideo\.cn\/request\/.* reject-dict
-
-# 广告图片/广告资源
-^https?:\/\/ggic\d*\.miguvideo\.com\/ad\/.* reject-img
-^https?:\/\/ggic\d*\.cmvideo\.cn\/ad\/.* reject-img
-^https?:\/\/.+?\/cdn-adn\/.* reject-img
-
-# 原规则增强
-^https?:\/\/public-deliver\d*\.miguvideo\.com\/deliver\/site\/batchMatch\/mergeSpot\/miguvideo\/.* reject-dict
-^https?:\/\/recommend-dy\.miguvideo\.com\/recommend-dynamic\/dataSource\/v1\/recommend\/merge.* reject-dict
-^https?:\/\/app-sc\.miguvideo\.com\/app-management\/v1\/staticcache\/settings\/miguvideo\/SHARE_PIC.* reject-dict
-^https?:\/\/common-sc\.miguvideo\.com\/videoActivity\/activityList\/.* reject-dict
-^https?:\/\/common-sc\.miguvideo\.com\/task\/v7\/task-list\/cmvideo\/visitor.* reject-dict
-
-# 启动配置/广告位配置
-^https?:\/\/display.*-sc\.miguvideo\.com\/display\/v\d\/static\/.* reject-dict
-^https?:\/\/app-sc\.miguvideo\.com\/app-management\/v\d\/staticcache\/settings\/miguvideo\/.* reject-dict
-^https?:\/\/common-sc\.miguvideo\.com\/.*(advert|ad|splash|startup|launch|opening).* reject-dict
-
-[Script]
-http-response ^https?:\/\/display-sc\.miguvideo\.com\/display\/v3\/static\/PERSONAL_CENTER$ script-path=https://raw.githubusercontent.com/cngzsunny/vpn_tool/refs/heads/main/Loon/Script/miguvideo_ads.js, requires-body=true, timeout=60, tag=咪咕视频个人中心去广告
-
-[MITM]
-hostname = %APPEND% *.miguvideo.com, *.cmvideo.cn
+https://.*miguvideo\.com\/request\/sdk url reject-200
+https://.*miguvideo\.com\/deliver\/site\/batchMatch\/mergeSpot\/miguvideo url reject-200
+https://.*miguvideo\.com\/app-management\/v\d\/staticcache\/navigation-list\/miguvideo\/ios url script-response-body https://ddgksf2013.top/scripts/migu.ads.js
+https://.*miguvideo\.com\/recommend-dynamic\/dataSource\/v\d\/recommend url jsonjq-response-body '.body.data=[]'
+https://.*migu\.cn\/search\/hotword url jsonjq-response-body '.body={}'
