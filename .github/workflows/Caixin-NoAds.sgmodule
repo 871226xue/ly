@@ -1,0 +1,18 @@
+#!name=财新去广告
+#!desc=去除财新网开屏广告、推荐流及部分接口请求
+
+[Rule]
+# 域名拦截
+DOMAIN,dolphin.caixin.com,REJECT
+DOMAIN,gg.caixin.com,REJECT
+
+# API拦截
+URL-REGEX,^https:\/\/cxdata\.caixin\.com\/api\/dataplus\/stkData\/list,REJECT-DICT
+URL-REGEX,^https:\/\/entities\.caixin\.com\/api\/public\/push\/appIndex\?target=index,REJECT-DICT
+URL-REGEX,^https:\/\/gateway\.caixin\.com\/api\/app-api\/search\/getkeyword,REJECT-DICT
+URL-REGEX,^https:\/\/gateway\.caixin\.com\/api\/app-api\/caixinminiapp\/appinfo,REJECT-DICT
+URL-REGEX,^https:\/\/gateway\.caixin\.com\/api\/app-api\/articlesHotRecommend\/getHotRecommendArticles,REJECT-DICT
+URL-REGEX,^https:\/\/www\.caixin\.com\/ai\/question.+,REJECT-DICT
+
+[MITM]
+hostname = cxdata.caixin.com, entities.caixin.com, gateway.caixin.com, www.caixin.com
