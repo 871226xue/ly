@@ -1,8 +1,7 @@
 /**
  * 机场订阅流量监控小组件
  * 修改内容：
- * 1. 超过50%后，“已用/总量”文字跟随进度条颜色
- * 2. 超过50%后，“剩余流量”文字也跟随进度条颜色
+ * 下方“已用/总量”和“剩余流量”文字始终跟随进度条颜色
  */
 
 export default async function (ctx) {
@@ -168,9 +167,7 @@ async function fetchInfo(ctx, slot) {
     return {
      ...parsed.data,
      name: slot.name,
-     remainDays: slot.resetDay
-      ? getRemainingDays(slot.resetDay)
-      : null,
+     remainDays: slot.resetDay ? getRemainingDays(slot.resetDay) : null,
     };
    }
 
@@ -185,22 +182,13 @@ async function fetchInfo(ctx, slot) {
    for (const headers of UA_LIST) {
     try {
      const resp = await ctx.http[method](url, { headers });
-
-     const raw =
-      resp.headers.get("subscription-userinfo") || "";
-
+     const raw = resp.headers.get("subscription-userinfo") || "";
      const info = parseUserInfo(raw);
 
      if (info) {
-      const used =
-       (info.upload || 0) + (info.download || 0);
-
+      const used = (info.upload || 0) + (info.download || 0);
       const totalBytes = info.total || 0;
-
-      const percent =
-       totalBytes > 0
-        ? (used / totalBytes) * 100
-        : 0;
+      const percent = totalBytes > 0 ? (used / totalBytes) * 100 : 0;
 
       const result = {
        error: null,
@@ -208,9 +196,7 @@ async function fetchInfo(ctx, slot) {
        totalBytes,
        percent,
        expire: info.expire || null,
-       remainDays: slot.resetDay
-        ? getRemainingDays(slot.resetDay)
-        : null,
+       remainDays: slot.resetDay ? getRemainingDays(slot.resetDay) : null,
       };
 
       await ctx.storage.set(
@@ -221,10 +207,7 @@ async function fetchInfo(ctx, slot) {
        })
       );
 
-      return {
-       ...result,
-       name: slot.name,
-      };
+      return { ...result, name: slot.name };
      }
     } catch (_) {}
    }
@@ -245,15 +228,7 @@ async function fetchInfo(ctx, slot) {
 }
 
 function buildCard(result, colors, ctx) {
- const {
-  name,
-  error,
-  used,
-  totalBytes,
-  percent,
-  expire,
-  remainDays,
- } = result;
+ const { name, error, used, totalBytes, percent, expire, remainDays } = result;
 
  let statusColor = colors.accentGreen;
 
@@ -265,6 +240,8 @@ function buildCard(result, colors, ctx) {
   statusColor = colors.accentOrange;
  } else if (percent >= 50) {
   statusColor = colors.accentPurple;
+ } else {
+  statusColor = colors.accentBlue;
  }
 
  if (error) {
@@ -290,31 +267,21 @@ function buildCard(result, colors, ctx) {
     {
      type: "text",
      text: name,
-     font: {
-      size: "caption2",
-      weight: "semibold",
-     },
+     font: { size: "caption2", weight: "semibold" },
      textColor: colors.textPrimary,
      flex: 1,
     },
     {
      type: "text",
      text: "失败",
-     font: {
-      size: "caption2",
-      weight: "semibold",
-     },
+     font: { size: "caption2", weight: "semibold" },
      textColor: colors.accentRed,
     },
    ],
   };
  }
 
- const progressPercent = Math.min(
-  Math.max(percent, 0),
-  100
- );
-
+ const progressPercent = Math.min(Math.max(percent, 0), 100);
  const usedStr = formatBytes(used);
  const totalStr = formatBytes(totalBytes);
  const remainStr = formatBytes(totalBytes - used);
@@ -325,16 +292,11 @@ function buildCard(result, colors, ctx) {
   expireText = `流量重置时间${remainDays}天后`;
  } else if (expire && Number(expire) > 0) {
   let ts = Number(expire);
-
   if (ts < 1e12) ts *= 1000;
 
   const d = new Date(ts);
 
-  expireText = `${d.getFullYear()}-${String(
-   d.getMonth() + 1
-  ).padStart(2, "0")}-${String(
-   d.getDate()
-  ).padStart(2, "0")}`;
+  expireText = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
  } else {
   expireText = "永久有效";
  }
@@ -344,23 +306,19 @@ function buildCard(result, colors, ctx) {
   direction: "column",
   gap: 5,
   padding: [8, 10],
-
   backgroundColor: {
    light: "#FFFFFF",
    dark: "#2B2B2D",
   },
-
   borderRadius: 8,
   borderWidth: 1,
   borderColor: colors.divider,
-
   children: [
    {
     type: "stack",
     direction: "row",
     alignItems: "center",
     gap: 5,
-
     children: [
      {
       type: "image",
@@ -369,25 +327,17 @@ function buildCard(result, colors, ctx) {
       height: 6,
       color: statusColor,
      },
-
      {
       type: "text",
       text: name,
-      font: {
-       size: "caption2",
-       weight: "semibold",
-      },
+      font: { size: "caption2", weight: "semibold" },
       textColor: colors.textPrimary,
       flex: 1,
      },
-
      {
       type: "text",
       text: `${Math.round(progressPercent)}%`,
-      font: {
-       size: "caption2",
-       weight: "bold",
-      },
+      font: { size: "caption2", weight: "bold" },
       textColor: statusColor,
      },
     ],
@@ -398,7 +348,6 @@ function buildCard(result, colors, ctx) {
     direction: "row",
     height: 5,
     borderRadius: 3,
-
     children: [
      {
       type: "stack",
@@ -407,7 +356,6 @@ function buildCard(result, colors, ctx) {
       backgroundColor: statusColor,
       borderRadius: 3,
      },
-
      {
       type: "stack",
       flex: Math.max(100 - progressPercent, 1),
@@ -426,22 +374,12 @@ function buildCard(result, colors, ctx) {
     direction: "row",
     alignItems: "center",
     gap: 5,
-
     children: [
      {
       type: "text",
       text: `${usedStr}/${totalStr}`,
-
-      font: {
-       size: "caption2",
-       weight: "medium",
-      },
-
-      // 超过50%跟随进度条颜色
-      textColor:
-       percent >= 50
-        ? statusColor
-        : colors.textSecondary,
+      font: { size: "caption2", weight: "medium" },
+      textColor: statusColor,
      },
 
      { type: "spacer" },
@@ -452,32 +390,17 @@ function buildCard(result, colors, ctx) {
          {
           type: "text",
           text: expireText,
-
-          font: {
-           size: "caption2",
-           weight: "medium",
-          },
-
+          font: { size: "caption2", weight: "medium" },
           textColor: colors.textTertiary,
          },
-
          { type: "spacer" },
         ]),
 
      {
       type: "text",
       text: `剩${remainStr}`,
-
-      font: {
-       size: "caption2",
-       weight: "semibold",
-      },
-
-      // 超过50%跟随进度条颜色
-      textColor:
-       percent >= 50
-        ? statusColor
-        : colors.accentGreen,
+      font: { size: "caption2", weight: "semibold" },
+      textColor: statusColor,
      },
     ],
    },
@@ -489,12 +412,10 @@ const UA_LIST = [
  {
   "User-Agent": "Quantumult%20X/1.5.2",
  },
-
  {
   "User-Agent": "clash-verge-rev/2.3.1",
   Accept: "application/x-yaml,text/plain,*/*",
  },
-
  {
   "User-Agent": "mihomo/1.19.3",
   Accept: "application/x-yaml,text/plain,*/*",
@@ -513,7 +434,6 @@ function buildVariants(url) {
  };
 
  add(url);
-
  add(withParam(url, "flag", "clash"));
  add(withParam(url, "flag", "meta"));
 
@@ -527,45 +447,31 @@ function withParam(url, key, value) {
 function parseUserInfo(header) {
  if (!header) return null;
 
- const pairs =
-  header.match(/\w+=[\d.eE+-]+/g) || [];
+ const pairs = header.match(/\w+=[\d.eE+-]+/g) || [];
 
  if (!pairs.length) return null;
 
  return Object.fromEntries(
   pairs.map((p) => {
    const [k, v] = p.split("=");
-
    return [k, Number(v)];
   })
  );
 }
 
 function formatBytes(bytes) {
- if (!Number.isFinite(bytes) || bytes <= 0)
-  return "0B";
+ if (!Number.isFinite(bytes) || bytes <= 0) return "0B";
 
- const units = [
-  "B",
-  "KB",
-  "MB",
-  "GB",
-  "TB",
- ];
+ const units = ["B", "KB", "MB", "GB", "TB"];
 
  const i = Math.min(
   Math.floor(Math.log(bytes) / Math.log(1024)),
   units.length - 1
  );
 
- const value =
-  bytes / Math.pow(1024, i);
+ const value = bytes / Math.pow(1024, i);
 
- return `${
-  value >= 10
-   ? Math.round(value)
-   : value.toFixed(1)
- }${units[i]}`;
+ return `${value >= 10 ? Math.round(value) : value.toFixed(1)}${units[i]}`;
 }
 
 function getRemainingDays(resetDay) {
@@ -577,10 +483,7 @@ function getRemainingDays(resetDay) {
   0
  ).getDate();
 
- const safeDay = Math.min(
-  resetDay,
-  maxDay
- );
+ const safeDay = Math.min(resetDay, maxDay);
 
  let next = new Date(
   now.getFullYear(),
@@ -595,10 +498,7 @@ function getRemainingDays(resetDay) {
    0
   ).getDate();
 
-  const nextSafeDay = Math.min(
-   resetDay,
-   nextMonthMax
-  );
+  const nextSafeDay = Math.min(resetDay, nextMonthMax);
 
   next = new Date(
    now.getFullYear(),
@@ -607,8 +507,5 @@ function getRemainingDays(resetDay) {
   );
  }
 
- return Math.max(
-  0,
-  Math.ceil((next - now) / 86400000)
- );
+ return Math.max(0, Math.ceil((next - now) / 86400000));
 }
